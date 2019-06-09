@@ -12,16 +12,16 @@ def learning_rate(epoch):
 
 
 with tf.device('/device:GPU:0'):
-        #callbacks = tf.keras.callbacks
-        #learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(learning_rate,verbose=1)
+        callbacks = tf.keras.callbacks
+        learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(learning_rate,verbose=1)
         #filepath of logs
-        #filepath_logs = 'log/models_new_train.csv'
-        #csv_log=callbacks.CSVLogger(filepath_logs, separator=',', append=False)
+        filepath_logs = 'log/models_new_train.csv'
+        csv_log=callbacks.CSVLogger(filepath_logs, separator=',', append=False)
         #early_stopping=callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='min')
         #filepath for models
-        #filepath="models/Best-weights-my_model-{epoch:03d}-{loss:.4f}-{acc:.4f}.h5"
-        #checkpoint = callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-        #callbacks_list = [csv_log,checkpoint, learning_rate_scheduler]
+        filepath="models/Best-weights-my_model-{epoch:03d}-{loss:.4f}-{acc:.4f}.h5"
+        checkpoint = callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+        callbacks_list = [csv_log,checkpoint, learning_rate_scheduler]
         #init CNN
         classifier = tf.keras.models.Sequential()
         #Step 1 Convolution
@@ -58,30 +58,36 @@ with tf.device('/device:GPU:0'):
 
         #Compiling the CNN
         classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
-        train_datagen = ImageDataGenerator(rescale = 1./255,
-                                   shear_range = 0.2,
-                                   zoom_range = 0.2,
-                                   horizontal_flip = True)
+        train_datagen = ImageDataGenerator(rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        rescale=1/255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest',
+        validation_split=0.2
+        )
 
-        test_datagen = ImageDataGenerator(rescale = 1./255)
+        test_datagen = ImageDataGenerator(rescale = 1/255)
 
         training_set = train_datagen.flow_from_directory('dataset/training_set',
                                                  target_size = (128, 128),
-                                                 batch_size = 64,
+                                                 batch_size = 128,
                                                  class_mode = 'categorical')
 
         test_set = test_datagen.flow_from_directory('dataset/test_set',
                                             target_size = (128, 128),
-                                            batch_size = 64,
+                                            batch_size = 128,
                                             shuffle=True,
                                             class_mode = 'categorical')
                                         
 
 
         classifier.fit_generator(training_set,
-                         steps_per_epoch = 2920,
-                         epochs = 10,
+                         steps_per_epoch = 12000,
+                         epochs = 5,
                          validation_data = test_set,
-                        # callbacks = callbacks_list,
-                         validation_steps = 1640)
+                         callbacks = callbacks_list,
+                         validation_steps = 3000)
         classifier.save('models/final_model.h5')

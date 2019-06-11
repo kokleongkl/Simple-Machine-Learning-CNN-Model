@@ -55,7 +55,7 @@ train_generator = train_datagen.flow_from_directory(
 
 
 validation_generator = train_datagen.flow_from_directory(
-    'dataset/test_set',
+    'dataset/new_test_set',
     target_size = (48,48),
     batch_size = batch_size,
     class_mode = 'categorical',
@@ -68,7 +68,7 @@ validation_generator = train_datagen.flow_from_directory(
 # used VGG16 layer instead of 2DConv
 prior =  tf.keras.applications.VGG16(
     include_top =False,
-    weights = 'imagenet',
+    weights='imagenet',
     input_shape=(48,48,3)
 )
 
@@ -96,8 +96,8 @@ model.compile(
 #fit the model
 import os
 labels_count = dict()
-for img_class in [ic for ic in os.listdir('dataset/training_set/') if ic[0]!='.']:
-    labels_count[img_class]= len(os.listdir('dataset/training_set/'+img_class))
+for img_class in [ic for ic in os.listdir('dataset/new_training_set/') if ic[0]!='.']:
+    labels_count[img_class]= len(os.listdir('dataset/new_training_set/'+img_class))
 
 
 total_count = sum(labels_count.values())

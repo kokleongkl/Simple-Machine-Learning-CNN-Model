@@ -25,17 +25,17 @@ with tf.device('/device:GPU:0'):
         #init CNN
         classifier = tf.keras.models.Sequential()
         #Step 1 Convolution
-        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(128,128,3),activation='relu'))
+        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(48,48,3),activation='relu'))
 
         #Step 2 Pooling
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
 
         #Adding 2nd Convolution Layer
-        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(128,128,3),activation='relu'))
+        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(48,48,3),activation='relu'))
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
 
         #adding 3rd Convoluation Layer
-        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(128,128,3),activation='relu'))
+        classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(48,48,3),activation='relu'))
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
 
 
@@ -46,11 +46,11 @@ with tf.device('/device:GPU:0'):
 
         #Step 3 Flattening
         classifier.add(tf.keras.layers.Flatten())
-        classifier.add(tf.keras.layers.Dropout(0.5))
+        classifier.add(tf.keras.layers.Dropout(0.3))
 
         #Step 4 Full Connection
         classifier.add(tf.keras.layers.Dense(units=128,activation='relu'))
-        classifier.add(tf.keras.layers.Dropout(0.5))
+        classifier.add(tf.keras.layers.Dropout(0.3))
         classifier.add(tf.keras.layers.Dense(units=3,activation='softmax'))
 
 
@@ -71,13 +71,13 @@ with tf.device('/device:GPU:0'):
 
         test_datagen = ImageDataGenerator(rescale = 1/255)
 
-        training_set = train_datagen.flow_from_directory('dataset/training_set',
-                                                 target_size = (128, 128),
+        training_set = train_datagen.flow_from_directory('dataset/new_training_set',
+                                                 target_size = (48, 48),
                                                  batch_size = 128,
                                                  class_mode = 'categorical')
 
-        test_set = test_datagen.flow_from_directory('dataset/test_set',
-                                            target_size = (128, 128),
+        test_set = test_datagen.flow_from_directory('dataset/new_test_set',
+                                            target_size = (48, 48),
                                             batch_size = 128,
                                             shuffle=True,
                                             class_mode = 'categorical')
@@ -86,8 +86,7 @@ with tf.device('/device:GPU:0'):
 
         classifier.fit_generator(training_set,
                          steps_per_epoch = 12000,
-                         epochs = 5,
+                         epochs = 15,
                          validation_data = test_set,
                          callbacks = callbacks_list,
                          validation_steps = 3000)
-        classifier.save('models/final_model.h5')

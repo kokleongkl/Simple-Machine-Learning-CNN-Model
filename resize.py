@@ -12,18 +12,34 @@ import os
 
 # for f in files:
 #     print(f)
-test_set_path = 'dataset/training_set/'
+test_set_path = 'dataset/training_set/Fucon'
 new_test_path = 'dataset/new_training_set'
 count = 0
 for r in os.listdir(test_set_path):
-    for img in os.listdir(test_set_path+r+'/'):
-            count+=1
-            original_img =cv2.imread(test_set_path+r+'/'+img,1)
-            newimg = cv2.resize(original_img,(48,48))
-            path = os.path.join(new_test_path+'/'+r,img)
-            #print(path)
-            status =cv2.imwrite(path,newimg)
-            print(status)
+    original_img =cv2.imread(test_set_path+'/'+r,1)
+    newimg = cv2.resize(original_img,(48,48))
+    path = os.path.join(new_test_path+'/Fucon',r)
+    status =cv2.imwrite(path,newimg)
+    count+=1
+    print(path+':'+str(status)+':'+str(count))
 
 
+
+    # for img in os.listdir(test_set_path+r+'/'):
+    #         count+=1
+    #         original_img =cv2.imread(test_set_path+r+'/'+img,1)
+    #         newimg = cv2.resize(original_img,(48,48))
+    #         path = os.path.join(new_test_path+'/'+r,img)
+    #         #print(path)
+            
+
+
+
+#    for img in os.listdir(test_set_path+r+'/'):
+#        count+=1
+#        original_img =cv2.imread(test_set_path+r+'/'+img,1)
+#        newimg = cv2.resize(original_img,(48,48))
+#        path = os.path.join(new_test_path+'/'+r,img)
+#        status =cv2.imwrite(path,newimg)
+#       print(path+':'+str(status)+':'+str(count))
 

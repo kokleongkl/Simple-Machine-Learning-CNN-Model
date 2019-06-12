@@ -5,7 +5,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten,Dense, Dropout
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+#init check points
+filepath="models/Best-weights-my_model-{epoch:03d}-{loss:.4f}-{acc:.4f}.h5"
+checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
 #
 # Step 1: define the data generators.
 #
@@ -44,15 +48,14 @@ test_datagen = ImageDataGenerator(
 batch_size = 128
 
 train_generator = train_datagen.flow_from_directory(
-    'dataset/training_set',
+    'dataset/new_training_set',
     target_size=(48, 48),
     batch_size=batch_size,
     class_mode='categorical',
-    subset='training',
 )
 
 validation_generator = train_datagen.flow_from_directory(
-    'dataset/test_set',
+    'dataset/new_test_set',
     target_size=(48, 48),
     batch_size=batch_size,
     class_mode='categorical',
@@ -80,7 +83,7 @@ model.add(prior)
 model.add(Flatten())
 model.add(Dense(256, activation='relu', name='Dense_Intermediate'))
 model.add(Dropout(0.1,name='Dropout_Regularization'))
-model.add(Dense(3, activation='sigmoid', name='Output'))
+model.add(Dense(3, activation='softmax', name='Output'))
 
 
 # Freeze the VGG16 model, e.g. do not train any of its weights.
@@ -118,8 +121,8 @@ model.compile(
 
 import os
 labels_count = dict()
-for img_class in [ic for ic in os.listdir('dataset/training_set') if ic[0] != '.']:
-    labels_count[img_class] = len(os.listdir('dataset/training_set/' + img_class))
+for img_class in [ic for ic in os.listdir('dataset/new_training_set') if ic[0] != '.']:
+    labels_count[img_class] = len(os.listdir('dataset/new_training_set/' + img_class))
 print(labels_count)
 total_count = sum(labels_count.values())
 class_weights = {cls: total_count / count for cls, count in 
@@ -136,6 +139,7 @@ model.fit_generator(
     class_weight=class_weights,
     callbacks=[
         EarlyStopping(patience=3, restore_best_weights=True),
+        checkpoint,
         ReduceLROnPlateau(patience=2)
     ]
 )

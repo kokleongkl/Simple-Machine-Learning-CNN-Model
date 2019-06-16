@@ -20,7 +20,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 # transformations and standardizations, a key technique for improving model
 # performance. To learn more, see https://keras.io/preprocessing/image/.
 # 
-
+batch_size = 24
 
 # Our training data will use a wide assortment of transformations to try
 # and squeeze as much variety as possible out of our image corpus.
@@ -29,40 +29,36 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 # performance.
 #
 # Also note that we are using an 80/20 train/validation split.
-train_datagen = ImageDataGenerator(
-    rotation_range=40,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    rescale=1/255,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True,
-    fill_mode='nearest',
-    validation_split=0.2
-)
-test_datagen = ImageDataGenerator(
-    rescale=1/255,
-)
+train_datagen = ImageDataGenerator(rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        rescale=1/255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest',
+        validation_split=0.2
+        )
+test_datagen = ImageDataGenerator(rescale = 1/255)
+
+training_set = train_datagen.flow_from_directory('dataset/new_training_set_96',
+                                                 target_size = (192, 192),
+                                                 batch_size = batch_size,
+                                                 class_mode = 'categorical')
+
+test_set = test_datagen.flow_from_directory('dataset/new_test_set_96',
+                                            target_size = (192, 192),
+                                            batch_size = batch_size,
+                                            shuffle=True,
+                                            class_mode = 'categorical')
+                                        
+
+
+
 # I found that a batch size of 128 offers the best trade-off between
 # model training time and batch volatility.
-batch_size = 128
 
-train_generator = train_datagen.flow_from_directory(
-    'dataset/new_training_set',
-    target_size=(48, 48),
-    batch_size=batch_size,
-    class_mode='categorical',
-)
-
-validation_generator = train_datagen.flow_from_directory(
-    'dataset/new_test_set',
-    target_size=(48, 48),
-    batch_size=batch_size,
-    class_mode='categorical',
-    subset='validation'
-)
-# Step 2: define the model.
-# 
+# 2: define the model 
 # For the purposes of this article I based the core of my model on VGG16,
 # a pretrained CNN architecture somewhat on the simpler side. This version
 # of VGG16 is one trained on the famed ImageNet (http://www.image-net.org/)
@@ -75,14 +71,14 @@ validation_generator = train_datagen.flow_from_directory(
 prior = keras.applications.VGG16(
     include_top=False, 
     weights='imagenet',
-    input_shape=(48, 48, 3)
+    input_shape=(192, 192, 3)
 )
 
 model = Sequential()
 model.add(prior)
 model.add(Flatten())
-model.add(Dense(256, activation='relu', name='Dense_Intermediate'))
-model.add(Dropout(0.1,name='Dropout_Regularization'))
+model.add(Dense(128, activation='relu', name='Dense_Intermediate'))
+model.add(Dropout(0.4,name='Dropout_Regularization'))
 model.add(Dense(3, activation='softmax', name='Output'))
 
 
@@ -96,7 +92,7 @@ model.layers[0].trainable = False
 # Compile the model. I found that RMSprop with the default learning
 # weight worked fine.
 model.compile(
-    optimizer=RMSprop(),
+    optimizer='adam',
     loss='categorical_crossentropy',
     metrics=['accuracy']
 )
@@ -121,8 +117,8 @@ model.compile(
 
 import os
 labels_count = dict()
-for img_class in [ic for ic in os.listdir('dataset/new_training_set') if ic[0] != '.']:
-    labels_count[img_class] = len(os.listdir('dataset/new_training_set/' + img_class))
+for img_class in [ic for ic in os.listdir('dataset/new_training_set_96') if ic[0] != '.']:
+    labels_count[img_class] = len(os.listdir('dataset/new_training_set_96/' + img_class))
 print(labels_count)
 total_count = sum(labels_count.values())
 class_weights = {cls: total_count / count for cls, count in 
@@ -131,11 +127,11 @@ class_weights = {cls: total_count / count for cls, count in
 print(class_weights)
 
 model.fit_generator(
-    train_generator,
-    steps_per_epoch=len(train_generator.filenames) // batch_size,
+    training_set,
+    steps_per_epoch=12000,
     epochs=15,
-    validation_data=validation_generator,
-    validation_steps=len(train_generator.filenames) // batch_size,
+    validation_data=test_set,
+    validation_steps=3000,
     class_weight=class_weights,
     callbacks=[
         EarlyStopping(patience=3, restore_best_weights=True),
@@ -143,3 +139,7 @@ model.fit_generator(
         ReduceLROnPlateau(patience=2)
     ]
 )
+
+training_set.class_indices
+
+

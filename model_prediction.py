@@ -1,8 +1,8 @@
 import tensorflow as tf 
 import numpy as np
-model = tf.keras.models.load_model('models/Best-weights-my_model-003-0.0336-0.9898.h5')
+model = tf.keras.models.load_model('models_able_to use/Best-weights-my_model-019-0.0001-1.0000.h5')
 
-test_image = tf.keras.preprocessing.image.load_img('dataset/test_set/Pulin/20190602_225922_001.jpg',target_size=(128,128))
+test_image = tf.keras.preprocessing.image.load_img('20190610_103506.jpg',target_size=(192,192))
 test_image = tf.keras.preprocessing.image.img_to_array(test_image)
 test_image = np.expand_dims(test_image, axis=0)
 #test_image = test_image.reshape(64, 64)

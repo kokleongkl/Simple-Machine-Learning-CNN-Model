@@ -11,3 +11,11 @@ After training and if you want to test your model prediction, you could make use
 # Convert to TFLite
 
 you could make use of the tfLifeConvertor.py to convert your model into TFLITE model for your mobile or Mircoprocessors
+
+# Image Reizing
+
+You can make use of resize.py to resize your image for optimal performance
+
+# Dataset
+
+Put your images in different folders as a indicator of labels to train for example, training dataset would be under dataset/train/"NAME OF THE LABEL" and for validation, dataset/test/"NAME OF THE LABEL"

@@ -1,0 +1,6 @@
+tensorflow==1.14.0
+Keras==2.2.4
+numpy==1.17.0
+absl_py==0.7.1
+opencv_python==3.4.1.15
+absl==0.0

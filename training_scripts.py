@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+#slow down learning rate as epoch increases
 def learning_rate(epoch):
         if epoch < 50:
                 lr = 0.001
@@ -18,7 +19,6 @@ with tf.device('/device:GPU:0'):
         #filepath of logs
         filepath_logs = 'log/models_new_train.csv'
         csv_log=callbacks.CSVLogger(filepath_logs, separator=',', append=False)
-        #early_stopping=callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='min')
         #filepath for models
         filepath="models/Best-weights-my_model-{epoch:03d}-{loss:.4f}-{acc:.4f}.h5"
         checkpoint = callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
@@ -31,36 +31,19 @@ with tf.device('/device:GPU:0'):
         #Step 2 Pooling
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
         #classifier.add(keras.layers.Dropout(0.5))
-        classifier.add(tf.keras.layers.BatchNormalization())
+
 
         #Adding 2nd Convolution Layer
         classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(192,192,3),activation='relu'))
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
-        classifier.add(tf.keras.layers.BatchNormalization())
-        classifier.add(keras.layers.Dropout(0.4))
+        # classifier.add(tf.keras.layers.BatchNormalization())
+        # classifier.add(keras.layers.Dropout(0.4))
 
         #adding 3rd Convoluation Layer
         classifier.add(tf.keras.layers.Conv2D(64,(3,3),input_shape=(192,192,3),activation='relu'))
         classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
         # classifier.add(keras.layers.Dropout(0.4))
 
-        classifier.add(tf.keras.layers.Conv2D(96,(3,3),input_shape=(192,192,3),activation='relu'))
-        classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
-        classifier.add(tf.keras.layers.BatchNormalization())
-
-        classifier.add(tf.keras.layers.Conv2D(32,(3,3),input_shape=(192,192,3),activation='relu'))
-        classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
-        classifier.add(tf.keras.layers.BatchNormalization())
-        model.add(Dropout(0.2))
-
-        # classifier.add(tf.keras.layers.Conv2D(512,(3,3),input_shape=(256,256,3),activation='relu'))
-        # classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2),strides=(2, 2)))
-        #classifier.add(keras.layers.Dropout(0.5))
-
-
-        # classifier.add(tf.keras.layers.Conv2D(512,(3,3),input_shape=(48,48,3),activation='relu'))
-        # classifier.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
-        # classifier.add(keras.layers.Dropout(0.5))
 
 
 

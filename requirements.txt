@@ -2,5 +2,5 @@ tensorflow==2.5.1
 Keras==2.2.4
 numpy==1.17.0
 absl_py==0.7.1
-opencv_python==3.4.1.15
+opencv_python==3.4.7.28
 absl==0.0
